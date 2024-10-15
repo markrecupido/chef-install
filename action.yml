@@ -17,6 +17,9 @@ inputs:
     description: 'Omnitruck base url'
     required: false
     default: 'omnitruck.chef.io'
+  downloadUrlOverride:
+    description: 'URL to download the package from'
+    required: false
   windowsPath:
     description: 'Path to the root of the chef install. Windows Only'
     required: false

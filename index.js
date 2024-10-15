@@ -8,6 +8,7 @@ async function main() {
     const channel = core.getInput('channel') || 'stable';
     const project = core.getInput('project') || 'chef-workstation';
     const version = core.getInput('version');
+    const downloadUrlOverride = core.getInput('downloadUrlOverride');
     const omnitruckUrl = core.getInput('omnitruckUrl') || 'omnitruck.chef.io';
     // This tool has intimate knowledge of the os
     // as Windows and Linux/MacOs run different installers
@@ -23,9 +24,16 @@ async function main() {
       else {
         versionParam = ''
       }
+      if (downloadUrlOverride) {
+        downloadUrlOverrideParam = `-l ${downloadUrlOverride}`
+      }
+      else {
+        downloadUrlOverrideParam = ''
+      }
+      
       await exec.exec(`curl -L https://${omnitruckUrl}/install.sh -o chefDownload.sh`)
       await exec.exec(`sudo chmod +x chefDownload.sh`)
-      await exec.exec(`sudo ./chefDownload.sh ${channelParam} ${projectParam} ${versionParam}`)
+      await exec.exec(`sudo ./chefDownload.sh ${channelParam} ${projectParam} ${versionParam} ${downloadUrlOverrideParam}`)
       await exec.exec(`rm -f chefDownload.sh`)
     }
     // We are on windows so assume powershell
@@ -40,7 +48,14 @@ async function main() {
       else {
         versionParam = ''
       }
-      await exec.exec(`powershell.exe -command ". { iwr -useb https://${omnitruckUrl}/install.ps1 } | iex; install ${channelParam} ${projectParam} ${versionParam}"`)
+      if (downloadUrlOverride) {
+        downloadUrlOverrideParam = `-download_url_override ${downloadUrlOverride}`
+      }
+      else {
+        downloadUrlOverrideParam = ''
+      }
+
+      await exec.exec(`powershell.exe -command ". { iwr -useb https://${omnitruckUrl}/install.ps1 } | iex; Install-Project ${projectParam} ${channelParam} ${versionParam} ${downloadUrlOverrideParam}"`)
       core.addPath(`${windowsPath}\\bin`)
     }
 
